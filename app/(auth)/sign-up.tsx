@@ -1,4 +1,4 @@
-import { useSignUp } from "@clerk/clerk-expo";
+import { isClerkAPIResponseError, useSignUp } from "@clerk/clerk-expo";
 import { Link, router } from "expo-router";
 import { useState } from "react";
 import { Alert, Image, ScrollView, Text, View } from "react-native";
@@ -40,8 +40,10 @@ const SignUp = () => {
     } catch (err: any) {
       // See https://clerk.com/docs/custom-flows/error-handling
       // for more info on error handling
-      console.log(JSON.stringify(err, null, 2));
-      Alert.alert("Error", err.errors[0].longMessage);
+      if (isClerkAPIResponseError(err)) {
+        console.error(JSON.stringify(err, null, 2));
+        Alert.alert("Error", err.errors?.[0].longMessage);
+      }
     }
   };
   const onPressVerify = async () => {
@@ -74,11 +76,14 @@ const SignUp = () => {
     } catch (err: any) {
       // See https://clerk.com/docs/custom-flows/error-handling
       // for more info on error handling
-      setVerification({
-        ...verification,
-        error: err.errors[0].longMessage,
-        state: "failed",
-      });
+
+      if (isClerkAPIResponseError(err))
+        setVerification({
+          ...verification,
+          error: err.errors[0]?.longMessage || "An error occurred",
+          state: "failed",
+        });
+      console.error(JSON.stringify(err, null, 2));
     }
   };
   return (
@@ -183,7 +188,10 @@ const SignUp = () => {
             </Text>
             <CustomButton
               title="Browse Home"
-              onPress={() => router.push(`/(root)/(tabs)/home`)}
+              onPress={() => {
+                router.push(`/(root)/(tabs)/home`);
+                setShowSuccessModal(false);
+              }}
               className="mt-5"
             />
           </View>
