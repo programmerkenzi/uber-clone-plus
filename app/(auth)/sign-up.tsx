@@ -8,7 +8,7 @@ import CustomButton from "@/components/CustomButton";
 import InputField from "@/components/InputField";
 import OAuth from "@/components/OAuth";
 import { icons, images } from "@/constants";
-import { fetchAPI } from "@/lib/fetch";
+import { fetchAPI } from "@/hooks/useFetch";
 
 const SignUp = () => {
   const { isLoaded, signUp, setActive } = useSignUp();
